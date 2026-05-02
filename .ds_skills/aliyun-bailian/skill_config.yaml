@@ -1,0 +1,125 @@
+# 阿里百炼技能配置
+name: "aliyun-bailian"
+version: "1.0.0"
+description: "阿里云百炼大模型服务集成"
+
+# 技能功能
+capabilities:
+  - "chat": "与阿里百炼模型对话"
+  - "list_models": "列出可用模型"
+  - "health_check": "检查服务状态"
+
+# 依赖项
+dependencies:
+  python_packages:
+    - "alibabacloud_bailian20231229>=1.0.0"
+    - "alibabacloud_tea_openapi>=0.3.0"
+    - "alibabacloud_tea_util>=0.3.0"
+  
+  system_requirements:
+    - "Python 3.7+"
+    - "阿里云账号"
+    - "百炼服务已开通"
+
+# 配置要求
+configuration:
+  required:
+    - "access_key_id"
+    - "access_key_secret"
+  
+  sources:
+    - "file": "~/.aliyun/config.json"
+    - "environment":
+        - "ALIBABA_CLOUD_ACCESS_KEY_ID"
+        - "ALIBABA_CLOUD_ACCESS_KEY_SECRET"
+  
+  default_endpoint: "bailian.cn-hangzhou.aliyuncs.com"
+  default_model: "qwen-plus"
+
+# 技能接口
+interfaces:
+  functions:
+    - "skill_bailian_chat(prompt, **kwargs) -> str"
+    - "skill_bailian_list_models() -> List[Dict]"
+    - "skill_bailian_health_check() -> Dict"
+  
+  classes:
+    - "BailianSkill: 主技能类"
+    - "BailianConfig: 配置类"
+
+# 使用示例
+examples:
+  chat_example: |
+    from .skill_bailian import skill_bailian_chat
+    
+    response = skill_bailian_chat(
+        prompt="请写一首关于春天的诗",
+        model_id="qwen-plus",
+        max_tokens=200,
+        temperature=0.8
+    )
+    print(response)
+  
+  health_check_example: |
+    from .skill_bailian import skill_bailian_health_check
+    
+    health = skill_bailian_health_check()
+    print(f"状态: {health['status']}")
+    print(f"可用模型: {health.get('available_models', [])}")
+
+# 集成到DS系统
+ds_integration:
+  auto_load: true
+  priority: 80  # 优先级（0-100，越高越优先）
+  
+  triggers:
+    keywords:
+      - "百炼"
+      - "bailian"
+      - "阿里云"
+      - "通义"
+      - "qwen"
+    
+    patterns:
+      - "用百炼.*回答"
+      - "调用.*阿里云"
+      - "使用.*通义"
+  
+  response_formats:
+    default: "text"
+    options:
+      - "text"
+      - "json"
+      - "markdown"
+
+# 错误处理
+error_handling:
+  retry_count: 3
+  retry_delay: 1.0  # 秒
+  
+  common_errors:
+    - "InvalidAccessKeyId": "AccessKey ID无效"
+    - "SignatureDoesNotMatch": "签名不匹配"
+    - "ServiceUnavailable": "服务不可用"
+    - "QuotaExceeded": "配额已用完"
+  
+  fallback_strategy: "return_error_message"
+
+# 监控和日志
+monitoring:
+  enabled: true
+  metrics:
+    - "request_count"
+    - "response_time"
+    - "error_rate"
+    - "token_usage"
+  
+  logging:
+    level: "INFO"
+    file: "~/.ds_skills/aliyun-bailian/logs/bailian.log"
+
+# 更新信息
+update_info:
+  check_frequency: "weekly"
+  source: "https://github.com/aliyun/alibabacloud-bailian-sdk"
+  documentation: "https://help.aliyun.com/zh/bailian/"

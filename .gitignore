@@ -1,0 +1,22 @@
+# DS Terminal user data directories
+.ds_memory/
+.ds_live/
+.ds_sessions/
+.ds_history
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Environment & secrets
+.env
+*.key
+*.pem
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
